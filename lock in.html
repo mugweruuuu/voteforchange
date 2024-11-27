@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Retro Countdown - Lock In</title>
+  
+  <!-- Link to Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body Styles */
+    body {
+      font-family: 'Press Start 2P', monospace;
+      background: linear-gradient(135deg, #000000, #121212);
+      color: #00FF7F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased; /* Improve font rendering on Safari */
+    }
+
+    /* Question Styling */
+    .question {
+      font-size: 2rem;
+      text-align: center;
+      color: #00FF7F;
+      margin-bottom: 20px;
+      text-shadow: 0px 0px 5px #00FF7F;
+    }
+
+    /* Timer Styling */
+    .timer {
+      font-size: 2.5rem;
+      letter-spacing: 0.2rem;
+      text-shadow: 0px 0px 5px #00FF7F;
+      text-align: center;
+    }
+
+    /* Container Styling */
+    .container {
+      position: relative;
+      z-index: 1;
+      padding: 10px;
+    }
+
+    /* Password Input and Button */
+    .password-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .password-input {
+      font-size: 1.5rem;
+      padding: 10px;
+      margin-top: 10px;
+      border: 2px solid #00FF7F;
+      background: transparent;
+      color: #00FF7F;
+      -webkit-appearance: none; /* Avoid default iOS input styles */
+      transition: border-color 0.3s ease;
+    }
+
+    .password-input.shake {
+      animation: shake 0.5s ease;
+      border-color: #FF0000;
+    }
+
+    /* Caption Styling */
+    .caption {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #00FF7F;
+      text-align: center;
+      opacity: 0.8;
+    }
+
+    /* Shaking animation */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+
+    .login-button {
+      background-color: #00FF7F;
+      color: #000000;
+      font-size: 1.5rem;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-button:hover {
+      background-color: #00cc66;
+    }
+
+    .error-message {
+      color: #FF0000;
+      font-size: 1.2rem;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .error-message .sad {
+      margin-left: 10px;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .question {
+        font-size: 1.5rem;
+      }
+
+      .timer {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .question {
+        font-size: 1.2rem;
+      }
+
+      .timer {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Lock-in Page: Password Prompt -->
+  <div class="password-container" id="password-container">
+    <div class="question">Enter Password to Lock In:</div>
+    <input type="password" class="password-input" id="password" placeholder="Enter your password" onkeyup="checkEnter(event)">
+    <button class="login-button" onclick="checkPassword()">Enter</button>
+    <div class="caption">Guess the password. Hint: headboy :)</div>
+    <div id="error-message" class="error-message"></div>
+  </div>
+
+  <!-- Hidden Countdown Timer -->
+  <div class="container" id="countdown-container" style="display: none;">
+    <div class="question">idk wait i guess 🤷🏾‍♂️</div>
+    <div class="timer" id="countdown">00d 00h 00m 00s</div>
+  </div>
+
+  <script>
+    // The correct password
+    const correctPassword = "JM1";
+
+    // Ensure page resets if user clicks back
+    window.onload = () => {
+      if (!sessionStorage.getItem("authorized")) {
+        // Redirect back to password screen
+        document.getElementById("password-container").style.display = "block";
+        document.getElementById("countdown-container").style.display = "none";
+      }
+    };
+
+    // Check password input and show error message
+    function checkPassword() {
+      const enteredPassword = document.getElementById("password").value;
+      if (enteredPassword === correctPassword) {
+        // Set authorized state and show countdown
+        sessionStorage.setItem("authorized", "true");
+        document.getElementById("password-container").style.display = "none";
+        document.getElementById("countdown-container").style.display = "block";
+
+        // Initialize the countdown timer
+        startCountdown();
+      } else {
+        showError();
+      }
+    }
+
+    // Check for Enter key press
+    function checkEnter(event) {
+      if (event.key === 'Enter') {
+        checkPassword();
+      }
+    }
+
+    // Show error with shake effect
+    function showError() {
+      const passwordInput = document.getElementById("password");
+      passwordInput.classList.add('shake');
+      document.getElementById("error-message").innerHTML = "Password Incorrect ;)";
+      
+      setTimeout(() => {
+        passwordInput.classList.remove('shake');
+      }, 500);
+    }
+
+    // Countdown Timer Logic
+    function startCountdown() {
+      const targetDate = new Date('December 03, 2024 00:00:00').getTime();
+
+      const timerInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const timeLeft = targetDate - now;
+
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          document.getElementById('countdown').innerHTML = "TIME'S UP!";
+          return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        document.getElementById('countdown').innerHTML = 
+          `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
